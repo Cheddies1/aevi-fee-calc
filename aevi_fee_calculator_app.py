@@ -2,19 +2,22 @@ import streamlit as st
 
 st.set_page_config(page_title="Aevi Fee Calculator", layout="centered")
 
-# Force sidebar open on desktop
+
+# Force sidebar open on Streamlit Cloud (and keep it open)
 st.markdown(
     """
-    <style>
-        section[data-testid="stSidebar"][aria-expanded="false"] {
-            min-width: 250px !important;
-            max-width: 250px !important;
-            width: 250px !important;
+    <script>
+    window.addEventListener('DOMContentLoaded', function() {
+        const sidebar = window.parent.document.querySelector('section[data-testid="stSidebar"]');
+        if (sidebar) {
+            sidebar.setAttribute('aria-expanded', 'true');
         }
-    </style>
+    });
+    </script>
     """,
     unsafe_allow_html=True
 )
+
 
 
 
