@@ -3,16 +3,17 @@ import streamlit as st
 st.set_page_config(page_title="Aevi Fee Calculator", layout="centered")
 
 
-# Force sidebar open on Streamlit Cloud (and keep it open)
+# Force sidebar open even on Streamlit Cloud
 st.markdown(
     """
     <script>
-    window.addEventListener('DOMContentLoaded', function() {
+    const interval = setInterval(function() {
         const sidebar = window.parent.document.querySelector('section[data-testid="stSidebar"]');
-        if (sidebar) {
+        if (sidebar && sidebar.getAttribute('aria-expanded') === 'false') {
             sidebar.setAttribute('aria-expanded', 'true');
+            clearInterval(interval);
         }
-    });
+    }, 100);
     </script>
     """,
     unsafe_allow_html=True
