@@ -2,6 +2,22 @@ import streamlit as st
 
 st.set_page_config(page_title="Aevi Fee Calculator", layout="centered")
 
+# Force sidebar open on desktop
+st.markdown(
+    """
+    <style>
+        section[data-testid="stSidebar"][aria-expanded="false"] {
+            min-width: 250px !important;
+            max-width: 250px !important;
+            width: 250px !important;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+
+
 st.title("Aevi Fee Calculator")
 
 st.markdown("Use this tool to calculate and compare Aevi platform fees based on different pricing models.")
