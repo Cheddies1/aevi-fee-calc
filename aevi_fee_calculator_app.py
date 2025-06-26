@@ -1,27 +1,10 @@
 import streamlit as st
 
-st.set_page_config(page_title="Aevi Fee Calculator", layout="centered")
-
-
-# Force sidebar open even on Streamlit Cloud
-st.markdown(
-    """
-    <script>
-    const interval = setInterval(function() {
-        const sidebar = window.parent.document.querySelector('section[data-testid="stSidebar"]');
-        if (sidebar && sidebar.getAttribute('aria-expanded') === 'false') {
-            sidebar.setAttribute('aria-expanded', 'true');
-            clearInterval(interval);
-        }
-    }, 100);
-    </script>
-    """,
-    unsafe_allow_html=True
+st.set_page_config(
+    page_title="Aevi Fee Calculator",
+    layout="centered",
+    initial_sidebar_state="expanded"
 )
-
-
-
-
 st.title("Aevi Fee Calculator")
 
 st.markdown("Use this tool to calculate and compare Aevi platform fees based on different pricing models.")
