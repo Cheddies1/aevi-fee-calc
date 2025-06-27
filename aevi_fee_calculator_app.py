@@ -42,9 +42,9 @@ if pricing_mode == "Cumulative (AND)":
     total_monthly_revenue = monthly_revenue_per_terminal * terminals
 
     # Total cost calc (incl. acquirer, interchange, scheme)
-    acquirer_fee = 0.0015 * avg_ticket  # 15bps
-    interchange_fee = 0.0030 * avg_ticket
-    scheme_fee = 0.0010 * avg_ticket
+    acquirer_fee = acquirer_fee_rate * avg_ticket
+    interchange_fee = interchange_fee_rate * avg_ticket
+    scheme_fee = scheme_fee_rate * avg_ticket
     total_cost_txn = acquirer_fee + interchange_fee + scheme_fee + total_fee_per_txn
 
     # Outputs
@@ -52,24 +52,25 @@ if pricing_mode == "Cumulative (AND)":
     st.markdown("---")
 
     col1, col2 = st.columns([2, 1])
-    col1.write("Monthly Transaction Value per Terminal:")
-    col2.markdown(f"<div style='text-align: right'>€{monthly_value:,.2f}</div>", unsafe_allow_html=True)
 
-    col1.write("Aevi Variable Fee per Transaction:")
-    col2.markdown(f"<div style='text-align: right'>€{variable_fee_per_txn:.4f}</div>", unsafe_allow_html=True)
+    col1.markdown("Monthly Transaction Value per Terminal:")
+    col2.markdown(f"<div style='text-align: right; padding-right: 6px;'><p>€{monthly_value:,.2f}</p></div>", unsafe_allow_html=True)
 
-    col1.write("Aevi Fixed Fee per Transaction:")
-    col2.markdown(f"<div style='text-align: right'>€{fixed_fee_per_txn:.4f}</div>", unsafe_allow_html=True)
+    col1.markdown("Aevi Variable Fee per Transaction:")
+    col2.markdown(f"<div style='text-align: right; padding-right: 6px;'><p>€{variable_fee_per_txn:.4f}</p></div>", unsafe_allow_html=True)
 
-    col1.write("Total Aevi Fee per Transaction:")
-    col2.markdown(f"<div style='text-align: right'>€{total_fee_per_txn:.4f}</div>", unsafe_allow_html=True)
+    col1.markdown("Aevi Fixed Fee per Transaction:")
+    col2.markdown(f"<div style='text-align: right; padding-right: 6px;'><p>€{fixed_fee_per_txn:.4f}</p></div>", unsafe_allow_html=True)
+
+    col1.markdown("Total Aevi Fee per Transaction:")
+    col2.markdown(f"<div style='text-align: right; padding-right: 6px;'><p>€{total_fee_per_txn:.4f}</p></div>", unsafe_allow_html=True)
 
     st.markdown("---")
-
     st.markdown("**Estimated Total Cost per Transaction (Incl. Acquirer, Interchange, Scheme):**")
+
     col1, col2 = st.columns([2, 1])
-    col1.write("Total Cost:")
-    col2.markdown(f"<div style='text-align: right'>€{total_cost_txn:.4f}</div>", unsafe_allow_html=True)
+    col1.markdown("Total Cost:")
+    col2.markdown(f"<div style='text-align: right; padding-right: 6px;'><p>€{total_cost_txn:.4f}</p></div>", unsafe_allow_html=True)
 
     st.caption("Includes Acquirer Fee (15bps), Interchange (0.30%), Scheme Fee (0.10%)")
 
@@ -77,11 +78,12 @@ if pricing_mode == "Cumulative (AND)":
     st.subheader("Aevi Revenue")
 
     col1, col2 = st.columns([2, 1])
-    col1.write("Monthly Revenue per Terminal:")
-    col2.markdown(f"<div style='text-align: right'>€{monthly_revenue_per_terminal:,.2f}</div>", unsafe_allow_html=True)
+    col1.markdown("Monthly Revenue per Terminal:")
+    col2.markdown(f"<div style='text-align: right; padding-right: 6px;'><p>€{monthly_revenue_per_terminal:,.2f}</p></div>", unsafe_allow_html=True)
 
-    col1.write("Monthly Estate Revenue:")
-    col2.markdown(f"<div style='text-align: right'>€{total_monthly_revenue:,.2f}</div>", unsafe_allow_html=True)
+    col1.markdown("Monthly Estate Revenue:")
+    col2.markdown(f"<div style='text-align: right; padding-right: 6px;'><p>€{total_monthly_revenue:,.2f}</p></div>", unsafe_allow_html=True)
+
 
 
 elif pricing_mode == "Compare (OR)":
