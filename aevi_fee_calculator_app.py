@@ -5,8 +5,8 @@ st.set_page_config(
     layout="centered",
     initial_sidebar_state="expanded"
 )
-st.title("Aevi Fee Calculator")
 
+st.title("Aevi Fee Calculator")
 st.markdown("Use this tool to calculate and compare Aevi platform fees based on different pricing models.")
 
 # Sidebar inputs
@@ -15,16 +15,24 @@ st.sidebar.subheader("Estate Details")
 avg_ticket = st.sidebar.number_input("Average Ticket Size (€)", min_value=0.01, value=25.00, step=0.01)
 avg_txns = st.sidebar.number_input("Transactions per Terminal per Month", min_value=1, value=400)
 terminals = st.sidebar.number_input("Number of Transacting Terminals", min_value=1, value=100)
+
 st.sidebar.markdown("---")
 st.sidebar.subheader("Pricing Details")
 bps_share = st.sidebar.number_input("Aevi BPs Share", min_value=0.0, value=20.0, step=0.1)
 fixed_fee_terminal = st.sidebar.number_input("Fixed Fee per Terminal per Month (€)", min_value=0.0, value=0.00, step=0.01)
 fixed_fee_txn = st.sidebar.number_input("Fixed Fee per Transaction (€)", min_value=0.0, value=0.00, step=0.01)
 
-pricing_mode = st.selectbox("Pricing Mode", ["Cumulative (AND)", "Compare (OR)"])
+pricing_mode = st.selectbox("Pricing Mode", ["Cumulative (AND)", "Compare (OR)", "Benchmark Against Adyen"])
 
-# Calculations
+# Constants for cost modelling
+interchange_fee_rate = 0.003  # 0.30%
+scheme_fee_rate = 0.001       # 0.10%
+acquirer_fee_rate = 0.0015    # 15bps
+
 monthly_value = avg_ticket * avg_txns
+
+def calculate_total_cost_per_txn(aevi_fee):
+    return (interchange_fee_rate + scheme_fee_rate + acquirer_fee_rate) * avg_ticket + aevi_fee
 
 if pricing_mode == "Cumulative (AND)":
     variable_fee_per_txn = (bps_share / 10000) * avg_ticket
@@ -33,21 +41,51 @@ if pricing_mode == "Cumulative (AND)":
     monthly_revenue_per_terminal = total_fee_per_txn * avg_txns
     total_monthly_revenue = monthly_revenue_per_terminal * terminals
 
+    # Total cost calc (incl. acquirer, interchange, scheme)
+    acquirer_fee = 0.0015 * avg_ticket  # 15bps
+    interchange_fee = 0.0030 * avg_ticket
+    scheme_fee = 0.0010 * avg_ticket
+    total_cost_txn = acquirer_fee + interchange_fee + scheme_fee + total_fee_per_txn
+
     # Outputs
     st.subheader("Cumulative Results (AND Mode)")
-    st.write(f"**Monthly Transaction Value per Terminal:** €{monthly_value:,.2f}")
-    st.write(f"**Aevi Variable Fee per Transaction:** €{variable_fee_per_txn:.4f}")
-    st.write(f"**Aevi Fixed Fee per Transaction:** €{fixed_fee_per_txn:.4f}")
-    st.write(f"**Total Aevi Fee per Transaction:** €{total_fee_per_txn:.4f}")
+    st.markdown("---")
+
+    col1, col2 = st.columns([2, 1])
+    col1.write("Monthly Transaction Value per Terminal:")
+    col2.markdown(f"<div style='text-align: right'>€{monthly_value:,.2f}</div>", unsafe_allow_html=True)
+
+    col1.write("Aevi Variable Fee per Transaction:")
+    col2.markdown(f"<div style='text-align: right'>€{variable_fee_per_txn:.4f}</div>", unsafe_allow_html=True)
+
+    col1.write("Aevi Fixed Fee per Transaction:")
+    col2.markdown(f"<div style='text-align: right'>€{fixed_fee_per_txn:.4f}</div>", unsafe_allow_html=True)
+
+    col1.write("Total Aevi Fee per Transaction:")
+    col2.markdown(f"<div style='text-align: right'>€{total_fee_per_txn:.4f}</div>", unsafe_allow_html=True)
+
+    st.markdown("---")
+
+    st.markdown("**Estimated Total Cost per Transaction (Incl. Acquirer, Interchange, Scheme):**")
+    col1, col2 = st.columns([2, 1])
+    col1.write("Total Cost:")
+    col2.markdown(f"<div style='text-align: right'>€{total_cost_txn:.4f}</div>", unsafe_allow_html=True)
+
+    st.caption("Includes Acquirer Fee (15bps), Interchange (0.30%), Scheme Fee (0.10%)")
+
     st.markdown("---")
     st.subheader("Aevi Revenue")
-    st.write(f"**Monthly Revenue per Terminal:** €{monthly_revenue_per_terminal:,.2f}")
-    st.write(f"**Monthly Estate Revenue:** €{total_monthly_revenue:,.2f}")
 
-else:
-    # OR mode - show each pricing model separately
+    col1, col2 = st.columns([2, 1])
+    col1.write("Monthly Revenue per Terminal:")
+    col2.markdown(f"<div style='text-align: right'>€{monthly_revenue_per_terminal:,.2f}</div>", unsafe_allow_html=True)
+
+    col1.write("Monthly Estate Revenue:")
+    col2.markdown(f"<div style='text-align: right'>€{total_monthly_revenue:,.2f}</div>", unsafe_allow_html=True)
+
+
+elif pricing_mode == "Compare (OR)":
     st.subheader("Comparative Results (OR Mode)")
-
     col1, col2, col3 = st.columns(3)
 
     with col1:
@@ -70,10 +108,48 @@ else:
         st.write(f"Per Terminal: €{fixed_fee_terminal:,.2f}")
         st.write(f"Total: €{fixed_terminal_total:,.2f}")
 
-st.markdown("---")
-st.caption("This calculator supports flexible pricing models. Have a DR2 to discuss custom scenarios or deeper analysis.")
+elif pricing_mode == "Benchmark Against Adyen":
+    st.subheader("Adyen Benchmark Comparison")
+    st.caption("_This benchmark is based on publicly available data and internal research. Actual charges may differ. This does **not include** adyen acquiring fees, only platform fees_")
 
-# Reference scenarios using same pricing inputs
+    col1, col2, col3 = st.columns(3)
+
+    # Shared benchmark setup
+    adyen_txns = avg_txns
+    adyen_terminals = terminals
+
+    with col1:
+        st.markdown("### Adyen Low (€0.05)")
+        fee = 0.05
+        per_terminal = fee * adyen_txns
+        total = per_terminal * adyen_terminals
+        st.write(f"Per Terminal: €{per_terminal:.2f}")
+        st.write(f"Total: €{total:,.2f}")
+
+    with col2:
+        st.markdown("### Adyen High (€0.12)")
+        fee = 0.12
+        per_terminal = fee * adyen_txns
+        total = per_terminal * adyen_terminals
+        st.write(f"Per Terminal: €{per_terminal:.2f}")
+        st.write(f"Total: €{total:,.2f}")
+
+    with col3:
+        st.markdown("### Current Aevi Model")
+        variable_fee_per_txn = (bps_share / 10000) * avg_ticket
+        fixed_fee_per_txn = fixed_fee_txn + (fixed_fee_terminal / avg_txns)
+        total_fee_per_txn = variable_fee_per_txn + fixed_fee_per_txn
+        aevi_per_terminal = total_fee_per_txn * avg_txns
+        aevi_total = aevi_per_terminal * terminals
+        st.write(f"Per Terminal: €{aevi_per_terminal:.2f}")
+        st.write(f"Total: €{aevi_total:,.2f}")
+
+
+st.markdown("---")
+
+st.caption("This calculator supports flexible pricing models. Contact Aevi to discuss custom scenarios or deeper analysis.")
+
+# Reference scenarios (cumulative mode logic)
 st.subheader("Reference Scenarios (Based on Your Pricing)")
 
 scenario_data = [
