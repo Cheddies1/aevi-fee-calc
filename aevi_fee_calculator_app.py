@@ -162,7 +162,7 @@ if pricing_mode == "Cumulative (AND)":
     st.markdown("---")
     st.subheader("Reference Scenarios (Based on Your Pricing)")
     st.caption(f"Worst case merchant - 300TRX average {currency}14 / Average - 400TRX average {currency}20 / T1 - 4000 average {currency}25")
-    scenario_df = build_scenario_df(terminals, bps_share, fixed_fee_terminal, fixed_fee_txn)
+    scenario_df = build_scenario_df(terminals, bps_share, fixed_fee_terminal, fixed_fee_txn, currency)
     st.dataframe(scenario_df, use_container_width=True)
 
 elif pricing_mode == "Compare (OR)":
