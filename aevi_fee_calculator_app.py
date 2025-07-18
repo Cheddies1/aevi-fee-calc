@@ -76,14 +76,14 @@ st.markdown("Use this tool to calculate and compare Aevi platform fees based on 
 # ---- Sidebar Inputs ----
 st.sidebar.header("Inputs")
 st.sidebar.subheader("Estate Details")
-avg_ticket = st.sidebar.number_input("Average Ticket Size (€)", min_value=0.01, value=25.00, step=0.01, help="What is the average transaction size in the estate? Normally between €10 and €25")
-avg_txns = st.sidebar.number_input("Transactions per Terminal per Month", min_value=1, value=400, help="SMB close to 400, Tier 1 4000+ - everything else somewhere in the middle")
-terminals = st.sidebar.number_input("Number of Transacting Terminals", min_value=1, value=100, help="What is our likely max estate size?")
+avg_ticket = st.sidebar.number_input("Average ticket size (€)", min_value=1, value=10, help="What is the average transaction size in the estate? Normally between €10 and €25")
+avg_txns = st.sidebar.number_input("Transactions per terminal", min_value=1, value=400, help="SMB close to 400, Tier 1 4000+ - everything else somewhere in the middle")
+terminals = st.sidebar.number_input("Number of transacting terminals", min_value=1, value=100, help="What is our likely max estate size?")
 
 st.sidebar.markdown("---")
 st.sidebar.subheader("Pricing Details")
-bps_share = st.sidebar.number_input("Aevi BPs Share", min_value=0, value=0, step=1, help="Basis points (e.g., 20 = 0.20%) scales well with transaction value")
-fixed_fee_terminal = st.sidebar.number_input("Fixed Fee per Terminal per Month (€/$)", min_value=0.0, value=0.00, step=0.01, help="Basic flat per terminal per month rate")
+bps_share = st.sidebar.number_input("Basis point share", min_value=0, value=0, step=1, help="Basis points (e.g., 20 = 0.20%) scales well with transaction value")
+fixed_fee_terminal = st.sidebar.number_input("Fee per Terminal per Month (€/$)", min_value=0.0, value=0.00, step=0.01, help="Basic flat per terminal per month rate")
 fixed_fee_txn = st.sidebar.number_input("Fixed Fee per Transaction (€/$)", min_value=0.0, value=0.00, step=0.001, format="%.3f", help="fixed euro or dollar-cent fee per transaction - often useful for high volume low value")
 
 pricing_mode = st.selectbox("Pricing Mode", ["Cumulative (AND)", "Compare (OR)", "Benchmark Against Adyen"])
@@ -116,12 +116,30 @@ if pricing_mode == "Cumulative (AND)":
     col2.markdown(f"<div style='text-align: right; padding-right: 6px;'><p>€{total_fee_per_txn:.4f}</p></div>", unsafe_allow_html=True)
 
     st.markdown("---")
-    st.subheader("Aevi Revenue")
-    col1, col2 = st.columns([2, 1])
-    col1.markdown("Monthly Revenue per Terminal:")
-    col2.markdown(f"<div style='text-align: right; padding-right: 6px;'><p>€{monthly_revenue_per_terminal:,.2f}</p></div>", unsafe_allow_html=True)
-    col1.markdown("Monthly Estate Revenue:")
-    col2.markdown(f"<div style='text-align: right; padding-right: 6px;'><p>€{total_monthly_revenue:,.2f}</p></div>", unsafe_allow_html=True)
+    st.markdown(
+        f"""
+        <div style='
+            border: 2px solid #0074e8;
+            background: #f2f7fc;
+            border-radius: 10px;
+            padding: 18px 18px 18px 18px;
+            margin: 12px 0 18px 0;
+        '>
+            <b style='font-size: 1.15em;'>Aevi Revenue 💸</b>
+            <div style='display: flex; justify-content: space-between; margin-top: 12px;'>
+                <span>Monthly Revenue per Terminal:</span>
+                <span style='min-width: 120px; text-align: right;'><b>€/$ {monthly_revenue_per_terminal:,.2f}</b></span>
+            </div>
+            <div style='display: flex; justify-content: space-between; margin-top: 6px;'>
+                <span>Monthly Estate Revenue:</span>
+                <span style='min-width: 120px; text-align: right;'><b>€/$ {total_monthly_revenue:,.2f}</b></span>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
 
     st.markdown("---")
     st.markdown("**Estimated Total Cost per Transaction in the EU (Incl. Acquirer, Interchange, Scheme):**")
