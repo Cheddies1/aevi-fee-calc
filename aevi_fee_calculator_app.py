@@ -41,7 +41,7 @@ def us_total_cost_per_txn(aevi_fee, avg_ticket, tx_type="credit"):
         return 0  # Or raise an exception
 
 
-def build_scenario_df(terminals, bps_share, fixed_fee_terminal, fixed_fee_txn):
+def build_scenario_df(terminals, bps_share, fixed_fee_terminal, fixed_fee_txn, currency):
     data = []
     scenarios = [
         ("Worst-case Merchant", 300, 14),
@@ -55,12 +55,13 @@ def build_scenario_df(terminals, bps_share, fixed_fee_terminal, fixed_fee_txn):
         estate = per_terminal * terminals
         data.append({
             "Scenario": label,
-            "Monthly Value/Terminal (€)": f"{txns * ticket:,.2f}",
-            "Fee/Transaction (€)": f"{total_fee:.4f}",
-            "Revenue/Terminal (€)": f"{per_terminal:,.2f}",
-            "Estate Revenue (€)": f"{estate:,.2f}"
+            f"Monthly Value/Terminal ({currency})": f"{txns * ticket:,.2f}",
+            f"Fee/Transaction ({currency})": f"{total_fee:.4f}",
+            f"Revenue/Terminal ({currency})": f"{per_terminal:,.2f}",
+            f"Estate Revenue ({currency})": f"{estate:,.2f}"
         })
     return pd.DataFrame(data)
+
 
 # ===== Streamlit App Layout =====
 
@@ -75,18 +76,20 @@ st.markdown("Use this tool to calculate and compare Aevi platform fees based on 
 
 # ---- Sidebar Inputs ----
 st.sidebar.header("Inputs")
+currency = st.sidebar.selectbox("Currency", ["€", "$"], index=0, help="Choose display currency for all outputs")
 st.sidebar.subheader("Estate Details")
-avg_ticket = st.sidebar.number_input("Average ticket size (€)", min_value=1, value=10, help="What is the average transaction size in the estate? Normally between €10 and €25")
+avg_ticket = st.sidebar.number_input(f"Average ticket size ({currency})", min_value=1, value=10, help="What is the average transaction size in the estate? Normally between €10 and €25")
 avg_txns = st.sidebar.number_input("Transactions per terminal", min_value=1, value=400, help="SMB close to 400, Tier 1 4000+ - everything else somewhere in the middle")
 terminals = st.sidebar.number_input("Number of transacting terminals", min_value=1, value=100, help="What is our likely max estate size?")
 
 st.sidebar.markdown("---")
 st.sidebar.subheader("Pricing Details")
 bps_share = st.sidebar.number_input("Basis point share", min_value=0, value=0, step=1, help="Basis points (e.g., 20 = 0.20%) scales well with transaction value")
-fixed_fee_terminal = st.sidebar.number_input("Fee per Terminal per Month (€/$)", min_value=0.0, value=0.00, step=0.01, help="Basic flat per terminal per month rate")
-fixed_fee_txn = st.sidebar.number_input("Fixed Fee per Transaction (€/$)", min_value=0.0, value=0.00, step=0.001, format="%.3f", help="fixed euro or dollar-cent fee per transaction - often useful for high volume low value")
+fixed_fee_terminal = st.sidebar.number_input(f"Fee per Terminal per Month ({currency})", min_value=0.0, value=0.00, step=0.01, help="Basic flat per terminal per month rate")
+fixed_fee_txn = st.sidebar.number_input(f"Fixed Fee per Transaction ({currency})", min_value=0.0, value=0.00, step=0.001, format="%.3f", help="fixed euro or dollar-cent fee per transaction - often useful for high volume low value")
 
 pricing_mode = st.selectbox("Pricing Mode", ["Cumulative (AND)", "Compare (OR)", "Benchmark Against Adyen"])
+
 
 monthly_value = avg_ticket * avg_txns
 
@@ -107,13 +110,13 @@ if pricing_mode == "Cumulative (AND)":
 
     col1, col2 = st.columns([2, 1])
     col1.markdown("Monthly Transaction Value per Terminal:")
-    col2.markdown(f"<div style='text-align: right; padding-right: 6px;'><p>€{monthly_value:,.2f}</p></div>", unsafe_allow_html=True)
+    col2.markdown(f"<div style='text-align: right; padding-right: 6px;'><p>{currency}{monthly_value:,.2f}</p></div>", unsafe_allow_html=True)
     col1.markdown("Aevi Variable Fee per Transaction:")
-    col2.markdown(f"<div style='text-align: right; padding-right: 6px;'><p>€{variable_fee_per_txn:.4f}</p></div>", unsafe_allow_html=True)
+    col2.markdown(f"<div style='text-align: right; padding-right: 6px;'><p>{currency}{variable_fee_per_txn:.4f}</p></div>", unsafe_allow_html=True)
     col1.markdown("Aevi Fixed Fee per Transaction:")
-    col2.markdown(f"<div style='text-align: right; padding-right: 6px;'><p>€{fixed_fee_per_txn:.4f}</p></div>", unsafe_allow_html=True)
+    col2.markdown(f"<div style='text-align: right; padding-right: 6px;'><p>{currency}{fixed_fee_per_txn:.4f}</p></div>", unsafe_allow_html=True)
     col1.markdown("Total Aevi Fee per Transaction:")
-    col2.markdown(f"<div style='text-align: right; padding-right: 6px;'><p>€{total_fee_per_txn:.4f}</p></div>", unsafe_allow_html=True)
+    col2.markdown(f"<div style='text-align: right; padding-right: 6px;'><p>{currency}{total_fee_per_txn:.4f}</p></div>", unsafe_allow_html=True)
 
     st.markdown("---")
     st.markdown(
@@ -128,11 +131,11 @@ if pricing_mode == "Cumulative (AND)":
             <b style='font-size: 1.15em;'>Aevi Revenue 💸</b>
             <div style='display: flex; justify-content: space-between; margin-top: 12px;'>
                 <span>Monthly Revenue per Terminal:</span>
-                <span style='min-width: 120px; text-align: right;'><b>€/$ {monthly_revenue_per_terminal:,.2f}</b></span>
+                <span style='min-width: 120px; text-align: right;'><b>{currency} {monthly_revenue_per_terminal:,.2f}</b></span>
             </div>
             <div style='display: flex; justify-content: space-between; margin-top: 6px;'>
                 <span>Monthly Estate Revenue:</span>
-                <span style='min-width: 120px; text-align: right;'><b>€/$ {total_monthly_revenue:,.2f}</b></span>
+                <span style='min-width: 120px; text-align: right;'><b>{currency} {total_monthly_revenue:,.2f}</b></span>
             </div>
         </div>
         """,
@@ -151,14 +154,14 @@ if pricing_mode == "Cumulative (AND)":
     st.markdown("**Estimated Total Cost per Transaction in the US (Incl. Acquirer, Interchange, Scheme):**")
     col1, col2 = st.columns([2, 1])
     col1.markdown("Total Cost (US Credit):")
-    col2.markdown(f"<div style='text-align: right; padding-right: 6px;'><p>€{total_cost_txn_us:.4f}</p></div>", unsafe_allow_html=True)
+    col2.markdown(f"<div style='text-align: right; padding-right: 6px;'><p>${total_cost_txn_us:.4f}</p></div>", unsafe_allow_html=True)
     st.caption("US: Interchange (180bps), Scheme Fee (16bps and 2c), Acquirer (15bps and 8c)")
 
 
     # ---- Reference Scenario Table (only in AND mode) ----
     st.markdown("---")
     st.subheader("Reference Scenarios (Based on Your Pricing)")
-    st.caption("Worst case merchant - 300TRX average €14 / Average - 400TRX average €20 / T1 - 4000 average €25")
+    st.caption(f"Worst case merchant - 300TRX average {currency}14 / Average - 400TRX average {currency}20 / T1 - 4000 average {currency}25")
     scenario_df = build_scenario_df(terminals, bps_share, fixed_fee_terminal, fixed_fee_txn)
     st.dataframe(scenario_df, use_container_width=True)
 
@@ -170,21 +173,21 @@ elif pricing_mode == "Compare (OR)":
         st.markdown("### BPs Only")
         bps_only_per_terminal = (bps_share / 10000) * avg_ticket * avg_txns
         bps_only_total = bps_only_per_terminal * terminals
-        st.write(f"Per Terminal: €{bps_only_per_terminal:,.2f}")
-        st.write(f"Total: €{bps_only_total:,.2f}")
+        st.write(f"Per Terminal: {currency}{bps_only_per_terminal:,.2f}")
+        st.write(f"Total: {currency}{bps_only_total:,.2f}")
 
     with col2:
         st.markdown("### Fixed per Transaction Only")
         fixed_txn_per_terminal = fixed_fee_txn * avg_txns
         fixed_txn_total = fixed_txn_per_terminal * terminals
-        st.write(f"Per Terminal: €{fixed_txn_per_terminal:,.2f}")
-        st.write(f"Total: €{fixed_txn_total:,.2f}")
+        st.write(f"Per Terminal: {currency}{fixed_txn_per_terminal:,.2f}")
+        st.write(f"Total: {currency}{fixed_txn_total:,.2f}")
 
     with col3:
         st.markdown("### Fixed per Terminal Only")
         fixed_terminal_total = fixed_fee_terminal * terminals
-        st.write(f"Per Terminal: €{fixed_fee_terminal:,.2f}")
-        st.write(f"Total: €{fixed_terminal_total:,.2f}")
+        st.write(f"Per Terminal: {currency}{fixed_fee_terminal:,.2f}")
+        st.write(f"Total: {currency}{fixed_terminal_total:,.2f}")
 
 elif pricing_mode == "Benchmark Against Adyen":
     st.subheader("Adyen Benchmark Comparison")
@@ -195,20 +198,20 @@ elif pricing_mode == "Benchmark Against Adyen":
     adyen_terminals = terminals
 
     with col1:
-        st.markdown("### Adyen Low (€0.05)")
+        st.markdown(f"### Adyen Low ({currency}0.05)")
         fee = 0.05
         per_terminal = fee * adyen_txns
         total = per_terminal * adyen_terminals
-        st.write(f"Per Terminal: €{per_terminal:.2f}")
-        st.write(f"Total: €{total:,.2f}")
+        st.write(f"Per Terminal: {currency}{per_terminal:.2f}")
+        st.write(f"Total: {currency}{total:,.2f}")
 
     with col2:
-        st.markdown("### Adyen High (€0.12)")
+        st.markdown(f"### Adyen High ({currency}0.12)")
         fee = 0.12
         per_terminal = fee * adyen_txns
         total = per_terminal * adyen_terminals
-        st.write(f"Per Terminal: €{per_terminal:.2f}")
-        st.write(f"Total: €{total:,.2f}")
+        st.write(f"Per Terminal: {currency}{per_terminal:.2f}")
+        st.write(f"Total: {currency}{total:,.2f}")
 
     with col3:
         st.markdown("### Current Aevi Model")
@@ -216,8 +219,8 @@ elif pricing_mode == "Benchmark Against Adyen":
             avg_ticket, avg_txns, bps_share, fixed_fee_terminal, fixed_fee_txn
         )
         aevi_total = aevi_per_terminal * terminals
-        st.write(f"Per Terminal: €{aevi_per_terminal:.2f}")
-        st.write(f"Total: €{aevi_total:,.2f}")
+        st.write(f"Per Terminal: {currency}{aevi_per_terminal:.2f}")
+        st.write(f"Total: {currency}{aevi_total:,.2f}")
 
 st.markdown("---")
 
