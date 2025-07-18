@@ -40,6 +40,7 @@ def us_total_cost_per_txn(aevi_fee, avg_ticket, tx_type="credit"):
     else:
         return 0  # Or raise an exception
 
+
 def build_scenario_df(terminals, bps_share, fixed_fee_terminal, fixed_fee_txn):
     data = []
     scenarios = [
@@ -75,15 +76,15 @@ st.markdown("Use this tool to calculate and compare Aevi platform fees based on 
 # ---- Sidebar Inputs ----
 st.sidebar.header("Inputs")
 st.sidebar.subheader("Estate Details")
-avg_ticket = st.sidebar.number_input("Average Ticket Size (€)", min_value=0.01, value=25.00, step=0.01)
-avg_txns = st.sidebar.number_input("Transactions per Terminal per Month", min_value=1, value=400)
-terminals = st.sidebar.number_input("Number of Transacting Terminals", min_value=1, value=100)
+avg_ticket = st.sidebar.number_input("Average Ticket Size (€)", min_value=0.01, value=25.00, step=0.01, help="What is the average transaction size in the estate? Normally between €10 and €25")
+avg_txns = st.sidebar.number_input("Transactions per Terminal per Month", min_value=1, value=400, help="SMB close to 400, Tier 1 4000+ - everything else somewhere in the middle")
+terminals = st.sidebar.number_input("Number of Transacting Terminals", min_value=1, value=100, help="What is our likely max estate size?")
 
 st.sidebar.markdown("---")
 st.sidebar.subheader("Pricing Details")
-bps_share = st.sidebar.number_input("Aevi BPs Share", min_value=0, value=0, step=1, help="Basis points (e.g., 20 = 0.20%)")
-fixed_fee_terminal = st.sidebar.number_input("Fixed Fee per Terminal per Month (€)", min_value=0.0, value=0.00, step=0.01)
-fixed_fee_txn = st.sidebar.number_input("Fixed Fee per Transaction (€)", min_value=0.0, value=0.00, step=0.001, format="%.3f")
+bps_share = st.sidebar.number_input("Aevi BPs Share", min_value=0, value=0, step=1, help="Basis points (e.g., 20 = 0.20%) scales well with transaction value")
+fixed_fee_terminal = st.sidebar.number_input("Fixed Fee per Terminal per Month (€/$)", min_value=0.0, value=0.00, step=0.01, help="Basic flat per terminal per month rate")
+fixed_fee_txn = st.sidebar.number_input("Fixed Fee per Transaction (€/$)", min_value=0.0, value=0.00, step=0.001, format="%.3f", help="fixed euro or dollar-cent fee per transaction - often useful for high volume low value")
 
 pricing_mode = st.selectbox("Pricing Mode", ["Cumulative (AND)", "Compare (OR)", "Benchmark Against Adyen"])
 
