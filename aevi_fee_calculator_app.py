@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-# ===== Constants (you can extend to a config section if you wish) =====
+# ===== Constants  =====
 
 EU_INTERCHANGE_CREDIT = 0.003  # 0.30%
 EU_SCHEME = 0.001              # 0.10%
@@ -122,8 +122,9 @@ if pricing_mode == "Cumulative (AND)":
     st.markdown(
         f"""
         <div style='
-            border: 2px solid #0074e8;
-            background: #f2f7fc;
+            border: 2px solid var(--primary-color,#0074e8);
+            background: var(--secondary-background-color,#f2f7fc);
+            color: var(--text-color,#222);
             border-radius: 10px;
             padding: 18px 18px 18px 18px;
             margin: 12px 0 18px 0;
@@ -141,6 +142,7 @@ if pricing_mode == "Cumulative (AND)":
         """,
         unsafe_allow_html=True
     )
+
 
 
 
