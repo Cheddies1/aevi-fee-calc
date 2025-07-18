@@ -24,7 +24,7 @@ fixed_fee_txn = st.sidebar.number_input("Fixed Fee per Transaction (€)", min_v
 
 pricing_mode = st.selectbox("Pricing Mode", ["Cumulative (AND)", "Compare (OR)", "Benchmark Against Adyen"])
 
-# Constants for cost modelling
+# Constants for cost modelling - EU
 interchange_fee_rate = 0.003  # 0.30%
 scheme_fee_rate = 0.001       # 0.10%
 acquirer_fee_rate = 0.0015    # 15bps
@@ -66,13 +66,13 @@ if pricing_mode == "Cumulative (AND)":
     col2.markdown(f"<div style='text-align: right; padding-right: 6px;'><p>€{total_fee_per_txn:.4f}</p></div>", unsafe_allow_html=True)
 
     st.markdown("---")
-    st.markdown("**Estimated Total Cost per Transaction (Incl. Acquirer, Interchange, Scheme):**")
+    st.markdown("**Estimated Total Cost per Transaction in the EU (Incl. Acquirer, Interchange, Scheme):**")
 
     col1, col2 = st.columns([2, 1])
     col1.markdown("Total Cost:")
     col2.markdown(f"<div style='text-align: right; padding-right: 6px;'><p>€{total_cost_txn:.4f}</p></div>", unsafe_allow_html=True)
 
-    st.caption("Includes Acquirer Fee (15bps), Interchange (0.30%), Scheme Fee (0.10%)")
+    st.caption("Includes European Acquirer Fee (15bps), Interchange (30bps), Scheme Fee (10bps)")
 
     st.markdown("---")
     st.subheader("Aevi Revenue")
