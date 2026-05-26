@@ -1,0 +1,34 @@
+# Normalise text files to LF in the index. Each platform checks out the form
+# its tooling expects (Linux/macOS: LF; Windows with autocrlf=true: CRLF).
+* text=auto eol=lf
+
+# Windows-script exceptions.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Unix scripts that must stay LF on every platform.
+*.sh text eol=lf
+
+# Common binaries.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.tar binary
+*.whl binary
+*.pyc binary
+*.so binary
+*.dll binary
+*.dylib binary
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+*.docx binary
+*.xlsx binary
+*.pptx binary
